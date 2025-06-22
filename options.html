@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>ArXiv PDF Parser – Settings</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      font-size: 14px;
+      margin: 2rem;
+      max-width: 480px
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 1rem
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 1rem
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #006cff;
+      color: #fff;
+      cursor: pointer
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default
+    }
+
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-family: monospace
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Google LLM API Key</h1>
+  <label for="apiKey">Enter your Gemini API key:</label>
+  <input type="text" id="apiKey" placeholder="AIza..." />
+  <button id="saveBtn">Save</button>
+  <span id="status" style="margin-left:1rem;color:green;"></span>
+
+  <hr style="margin:2rem 0;">
+  <h1>Organizations</h1>
+  <label>Your list of organizations for highlighting:</label>
+  <ul id="orgList" style="padding-left:1.2em;margin-bottom:1rem;"></ul>
+  <label for="newOrg">Add your organization:</label>
+  <input type="text" id="newOrg" placeholder="Organization name" />
+  <button id="addOrgBtn">Add</button>
+  <span id="orgStatus" style="margin-left:1rem;color:green;"></span>
+
+  <hr style="margin:2rem 0;">
+  <h1>Custom Prompt</h1>
+  <label for="customPrompt">Customize the prompt for extracting affiliations (leave blank to use default):</label>
+  <textarea id="customPrompt" rows="6" style="width:100%;font-family:monospace;"></textarea>
+  <button id="savePromptBtn">Save Prompt</button>
+  <span id="promptStatus" style="margin-left:1rem;color:green;"></span>
+
+  <!-- External script to satisfy MV3 CSP -->
+  <script src="options.js"></script>
+</body>
+
+</html>

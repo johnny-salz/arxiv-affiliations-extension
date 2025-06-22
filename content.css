@@ -1,0 +1,9 @@
+/* in content_styles.css, add to manifest "content_scripts > css" */
+@font-face {
+    font-family: "NotoColorEmoji";
+    src: url(chrome-extension://__MSG_@@extension_id__/fonts/NotoColorEmoji-flagsonly.ttf) format("truetype");
+}
+
+.flag-text {
+    font-family: "NotoColorEmoji", system-ui;
+}

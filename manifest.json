@@ -1,0 +1,52 @@
+{
+    "manifest_version": 3,
+    "name": "ArXiv Affiliations Extractor",
+    "version": "2.3",
+    "description": "Extracts author affiliations from PDF files on arXiv.",
+    "permissions": [
+        "storage",
+        "scripting"
+    ],
+    "host_permissions": [
+        "https://arxiv.org/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "*://arxiv.org/abs/*",
+                "*://arxiv.org/list/*/new*",
+                "*://arxiv.org/list/*/recent*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "content.css"
+            ]
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Информация об авторах"
+    },
+    "options_page": "options.html",
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "pdf.worker.mjs",
+                "pdf.mjs"
+            ],
+            "matches": [
+                "https://arxiv.org/*"
+            ]
+        },
+        {
+            "resources": [
+                "fonts/*"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ]
+}
