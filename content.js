@@ -8,6 +8,22 @@ function sleep(ms) {
 }
 
 const DEFAULT_PROMPT = `List unique (i.e. only non-duplicated affiliations) author affiliations found in the following fragment of the first page of an arXiv paper. Only pay attention to the organizations relevant to the list of authors, not mentioned elsewhere. Return only organization names, no department or specialization. Prefix the reply with emoji flags of countries for organizations you are aware of their home country. Sort by perceived importance (relevance, fame) first. If the text doesn't contain any relevant organizations just return nothing, do not try to imagine supposed affiliations. Return one affiliation per line:\n\n`;
+const DEFAULT_MODEL = "gemini-2.5-flash-lite";
+
+function normalizeModelId(modelId) {
+  const trimmed = (modelId || "").trim();
+  if (!trimmed) return DEFAULT_MODEL;
+  if (trimmed.startsWith("models/")) return trimmed.slice("models/".length);
+  if (trimmed.includes(":generateContent")) {
+    return trimmed.split(":generateContent")[0].replace(/^models\//, "");
+  }
+  return trimmed;
+}
+
+function buildGeminiEndpoint(modelId) {
+  const model = normalizeModelId(modelId);
+  return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+}
 
 function renderAffiliations(container, lines, orgList, className = "affiliations flag-text") {
   const affDiv = document.createElement("div");
@@ -163,7 +179,7 @@ function removeFloatingStatusBar() {
       console.log("Content.js: PDF page text extracted.\n", pageText);
 
       // 4) Gemini API key
-      const { apiKey } = await chrome.storage.sync.get(["apiKey"]);
+      const { apiKey, modelId } = await chrome.storage.sync.get(["apiKey", "modelId"]);
       if (!apiKey) {
         alert("🔑 Please specify Gemini API key in the extension settings.");
         return;
@@ -180,7 +196,7 @@ function removeFloatingStatusBar() {
 
       // 5) Request to Gemini Flash 2.5
       const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent";
+      const endpoint = buildGeminiEndpoint(modelId);
       const res = await fetch(`${endpoint}?key=${apiKey}`, { method: "POST", headers: { "Content-Type": "application/json" }, body });
       if (res.status === 429) {
         let retryDelay = null;
@@ -335,7 +351,7 @@ function removeFloatingStatusBar() {
             const pageText = textContent.items.map(i => i.str).join(" ");
             await page.cleanup();
             await pdf.destroy();
-            const { apiKey } = await chrome.storage.sync.get(["apiKey"]);
+            const { apiKey, modelId } = await chrome.storage.sync.get(["apiKey", "modelId"]);
             if (!apiKey) {
               loadingText.textContent = " No Gemini API key.";
               return;
@@ -351,7 +367,7 @@ function removeFloatingStatusBar() {
             const prompt = (customPrompt || DEFAULT_PROMPT) + pageText;
 
             const body = JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] });
-            const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite-preview-06-17:generateContent";
+            const endpoint = buildGeminiEndpoint(modelId);
             const res = await fetch(`${endpoint}?key=${apiKey}`, { method: "POST", headers: { "Content-Type": "application/json" }, body });
             if (res.status === 429) {
               let retryDelay = null;

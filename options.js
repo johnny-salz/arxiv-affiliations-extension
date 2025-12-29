@@ -1,7 +1,9 @@
 // options.js – saving/loading Gemini LLM key in chrome.storage.sync
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const DEFAULT_MODEL = 'gemini-2.5-flash-lite';
   const input = document.getElementById('apiKey');
+  const modelInput = document.getElementById('modelId');
   const status = document.getElementById('status');
   const promptInput = document.getElementById('customPrompt');
   const promptStatus = document.getElementById('promptStatus');
@@ -108,9 +110,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Load saved data
-  chrome.storage.sync.get(['apiKey', 'orgs']).then(({ apiKey, orgs }) => {
+  chrome.storage.sync.get(['apiKey', 'orgs', 'modelId']).then(({ apiKey, orgs, modelId }) => {      
     if (apiKey) input.value = apiKey;
-    let orgArr = orgs && Array.isArray(orgs) ? orgs : defaultOrgs.slice();
+    if (modelInput) modelInput.value = (modelId && modelId.trim()) ? modelId : DEFAULT_MODEL;
+    let orgArr = orgs && Array.isArray(orgs) ? orgs : defaultOrgs.slice();      
     // If no orgs in storage, save defaults immediately
     if (!orgs) chrome.storage.sync.set({ orgs: orgArr });
     renderOrgs(orgArr);
@@ -123,9 +126,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Save API key
-  document.getElementById('saveBtn').addEventListener('click', async () => {
+  document.getElementById('saveBtn').addEventListener('click', async () => {    
     const key = input.value.trim();
-    await chrome.storage.sync.set({ apiKey: key });
+    const model = (modelInput && modelInput.value.trim()) ? modelInput.value.trim() : DEFAULT_MODEL;
+    await chrome.storage.sync.set({ apiKey: key, modelId: model });
     status.textContent = 'Saved';
     setTimeout(() => (status.textContent = ''), 1500);
   });
