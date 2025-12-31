@@ -7,3 +7,9 @@
 .flag-text {
     font-family: "NotoColorEmoji", system-ui;
 }
+.affiliation-tag {
+    color: #b7b7b7;
+    font-size: 0.75em;
+    vertical-align: super;
+    font-weight: normal;
+}

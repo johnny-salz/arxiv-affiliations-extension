@@ -7,7 +7,15 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const DEFAULT_PROMPT = `List unique (i.e. only non-duplicated affiliations) author affiliations found in the following fragment of the first page of an arXiv paper. Only pay attention to the organizations relevant to the list of authors, not mentioned elsewhere. Return only organization names, no department or specialization. Prefix the reply with emoji flags of countries for organizations you are aware of their home country. Sort by perceived importance (relevance, fame) first. If the text doesn't contain any relevant organizations just return nothing, do not try to imagine supposed affiliations. Return one affiliation per line:\n\n`;
+const DEFAULT_PROMPT = `List unique (i.e. only non-duplicated) author affiliations found in the following fragment of the first page of an arXiv paper. Only pay attention to the organizations relevant to the list of authors, not mentioned elsewhere. Return only organization names, no department or specialization. Prefix the reply with emoji flags of countries for organizations you are aware of their home country. Sort by perceived importance (relevance, fame) first.
+
+Append a short inline tag to each affiliation in this exact format: " — TAG: <tag> — WHY: <short reason>".
+- Allowed tags: "Top global", "Top in country", "Leading in field", "Well known", "Unknown".
+- Only use a non-"Unknown" tag if you are confident it is widely recognized; otherwise use "Unknown".
+- Do not invent exact rankings or numeric positions.
+- Keep WHY to 3-6 words.
+
+If the text doesn't contain any relevant organizations just return nothing. Return one affiliation per line:\n\n`;
 const DEFAULT_MODEL = "gemini-2.5-flash-lite";
 
 function normalizeModelId(modelId) {
@@ -33,14 +41,34 @@ function renderAffiliations(container, lines, orgList, className = "affiliations
   label.textContent = "Affiliations:";
   affDiv.append(label);
   const orgRegexes = orgList.map(org => new RegExp(org.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
+  const tagMarker = " — TAG: ";
+  const whyMarker = " — WHY: ";
+  const splitTag = (aff) => {
+    const tagIdx = aff.indexOf(tagMarker);
+    if (tagIdx === -1) return { main: aff };
+    const whyIdx = aff.indexOf(whyMarker, tagIdx + tagMarker.length);
+    if (whyIdx === -1) return { main: aff };
+    return {
+      main: aff.slice(0, tagIdx),
+      tag: aff.slice(tagIdx + tagMarker.length, whyIdx),
+      why: aff.slice(whyIdx + whyMarker.length)
+    };
+  };
   lines.slice(0, 10).forEach((aff, idx) => {
+    const { main, tag, why } = splitTag(aff);
     const span = document.createElement("span");
-    span.textContent = ` ${aff}`;
-    if (orgRegexes.some(re => re.test(aff))) {
+    span.textContent = ` ${main}`;
+    if (orgRegexes.some(re => re.test(main))) {
       span.style.background = "#ffe600";
       span.style.fontWeight = "bold";
     }
     affDiv.append(span);
+    if (tag && why) {
+      const sup = document.createElement("sup");
+      sup.className = "affiliation-tag";
+      sup.textContent = ` TAG: ${tag} \u00b7 ${why}`;
+      affDiv.append(sup);
+    }
     if (idx !== Math.min(lines.length, 10) - 1) affDiv.append(document.createTextNode(","));
   });
   container.insertAdjacentElement("afterend", affDiv);
@@ -250,6 +278,7 @@ function removeFloatingStatusBar() {
       if (lines.length > 10) lines = lines.slice(0, 10);
       const { orgs } = await chrome.storage.sync.get(["orgs"]);
       const orgList = orgs && Array.isArray(orgs) && orgs.length ? orgs : defaultOrgs;
+      loadDiv.remove();
       renderAffiliations(authorsDiv, lines, orgList, authorsDiv.className + " affiliations flag-text");
       // Save to cache
       cache[id] = lines;
