@@ -40,6 +40,7 @@ function renderAffiliations(container, lines, orgList, className = "affiliations
   label.className = "descriptor";
   label.textContent = "Affiliations:";
   affDiv.append(label);
+  const list = document.createElement("div");
   const orgRegexes = orgList.map(org => new RegExp(org.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'));
   const tagMarker = " — TAG: ";
   const whyMarker = " — WHY: ";
@@ -56,21 +57,23 @@ function renderAffiliations(container, lines, orgList, className = "affiliations
   };
   lines.slice(0, 10).forEach((aff, idx) => {
     const { main, tag, why } = splitTag(aff);
+    const line = document.createElement("div");
     const span = document.createElement("span");
-    span.textContent = ` ${main}`;
+    span.textContent = main;
     if (orgRegexes.some(re => re.test(main))) {
       span.style.background = "#ffe600";
       span.style.fontWeight = "bold";
     }
-    affDiv.append(span);
+    line.append(span);
     if (tag && why) {
       const sup = document.createElement("sup");
       sup.className = "affiliation-tag";
       sup.textContent = ` TAG: ${tag} \u00b7 ${why}`;
-      affDiv.append(sup);
+      line.append(sup);
     }
-    if (idx !== Math.min(lines.length, 10) - 1) affDiv.append(document.createTextNode(","));
+    list.append(line);
   });
+  affDiv.append(list);
   container.insertAdjacentElement("afterend", affDiv);
 }
 
