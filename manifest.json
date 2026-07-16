@@ -1,14 +1,15 @@
 {
     "manifest_version": 3,
     "name": "ArXiv Affiliations Extractor",
-    "version": "2.3",
-    "description": "Extracts author affiliations from PDF files on arXiv.",
+    "version": "2.4",
+    "description": "Extracts author affiliations from PDF files on arXiv and links Google result citations to Google Scholar.",
     "permissions": [
         "storage",
         "scripting"
     ],
     "host_permissions": [
-        "https://arxiv.org/*"
+        "https://arxiv.org/*",
+        "https://scholar.google.com/*"
     ],
     "content_scripts": [
         {
@@ -23,8 +24,21 @@
             "css": [
                 "content.css"
             ]
+        },
+        {
+            "matches": [
+                "*://www.google.com/search*",
+                "*://google.com/search*"
+            ],
+            "js": [
+                "google-scholar.js"
+            ],
+            "run_at": "document_idle"
         }
     ],
+    "background": {
+        "service_worker": "background.js"
+    },
     "action": {
         "default_popup": "popup.html",
         "default_title": "Информация об авторах"
