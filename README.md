@@ -11,11 +11,11 @@ Be careful opening huge lists of papers: it will download all of them one by one
 - Insert affiliations and country flags below author list in /abs, /new and /recent pages on GitHub
 - Caches affiliations for seen/visited papers, so it doesn't reprocess them unnecessary
 - Have some indication of progress
-- On Google Search, turns `Cited by N` for arXiv results into the matching Google Scholar citation page
+- On Google Search, turns `Cited by N` for any result into the matching Google Scholar citation page
 
 ## Google Scholar citation links
 
-When a Google Search result has an arXiv URL and a `Cited by N` label, the extension searches Google Scholar by paper title. It changes that label into a direct link to the matching Scholar citation list, with the paper's `cites` ID.
+When a Google Search result has a `Cited by N` label, the extension searches Google Scholar by paper title and source URL. It changes that label into a direct link to the matching Scholar citation list, with the paper's `cites` ID.
 
 The lookup needs access to `scholar.google.com`. If Scholar does not return a matching paper, the label stays inactive and the browser console shows the lookup error.
 

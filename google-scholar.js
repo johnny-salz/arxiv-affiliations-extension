@@ -40,7 +40,7 @@ async function prepareCitationLink(link) {
     }
     const title = result?.querySelector("h3")?.textContent?.trim();
     const resultUrl = result?.querySelector('a[href^="http"]:not([href*="google."])')?.href;
-    if (!title || !resultUrl?.includes("arxiv.org")) return;
+    if (!title) return;
 
     link.dataset.scholarState = "loading";
     link.title = "Finding Google Scholar citation page...";
@@ -52,7 +52,7 @@ async function prepareCitationLink(link) {
         const answer = await chrome.runtime.sendMessage({
             type: "findScholarCitations",
             title,
-            arxivUrl: resultUrl
+            sourceUrl: resultUrl || ""
         });
         if (!answer?.url) throw new Error(answer?.error || "No Scholar URL");
         link.href = answer.url;
